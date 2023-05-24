@@ -1,17 +1,19 @@
 import React, {createContext, FunctionComponent, ReactNode, useEffect, useState} from 'react';
 import api from "./api";
+import {USER_KEY} from "../constants/localStorageConstants";
 
 interface AuthContextProps {
     isAuthenticated: boolean;
-    login: () => void;
+    login: (key: string) => void | string;
     logout: () => void;
+    userInfos: UserInfos;
 }
 
 interface AuthProviderProps {
     children: ReactNode
 }
 
-interface UserInfos {
+export interface UserInfos {
     get: string,
     parameters: [],
     errors: [],
@@ -37,15 +39,16 @@ interface UserInfos {
 
 export const AuthContext = createContext<AuthContextProps>({
     isAuthenticated: false,
-    login: () => {
+    login: (_: string) => {
     },
     logout: () => {
     },
-});
+    userInfos: {}
+} as AuthContextProps);
 
 const AuthProvider: FunctionComponent<AuthProviderProps> = ({children}) => {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
-    const [userInfos, setUserInfos] = useState<UserInfos>();
+    const [userInfos, setUserInfos] = useState<UserInfos | any>();
 
 
     const getUserInfos = async (userKey: string): Promise<UserInfos> => {
@@ -55,29 +58,29 @@ const AuthProvider: FunctionComponent<AuthProviderProps> = ({children}) => {
         return api.get("status", config).then(res => {
             return res.data
         }).catch(err => {
-            console.log(err)
+            return err
         })
     }
 
     useEffect(() => {
-        const userKey: string | null = "66fb19c4c23ad4af159ced95f449b518" //localStorage.getItem('user_key')
-
+        const userKey: string | null = localStorage.getItem(USER_KEY)
         if (userKey) {
-            getUserInfos(userKey).then(res => setUserInfos(res))
+            getUserInfos(userKey).then(res => setUserInfos(res)).catch((err) => setUserInfos(err))
         }
     }, []);
 
-    const login = () => {
+    const login = (key: string) => {
         setIsAuthenticated(true);
+        localStorage.setItem(USER_KEY, key)
     };
 
     const logout = () => {
+        localStorage.setItem(USER_KEY, "")
         setIsAuthenticated(false);
     };
 
-    console.log(userInfos)
     return (
-        <AuthContext.Provider value={{isAuthenticated, login, logout}}>
+        <AuthContext.Provider value={{isAuthenticated, login, logout, userInfos}}>
             {children}
         </AuthContext.Provider>
     );
