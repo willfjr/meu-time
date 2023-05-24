@@ -1,12 +1,12 @@
-import React, {createContext, FunctionComponent, ReactNode, useEffect, useState} from 'react';
-import api from "./api";
+import React, {createContext, FunctionComponent, ReactNode, useState} from 'react';
 import {USER_KEY} from "../constants/localStorageConstants";
 
 interface AuthContextProps {
     isAuthenticated: boolean;
-    login: (key: string) => void | string;
+    login: (key: string, authenticated: boolean) => void;
     logout: () => void;
-    userInfos: UserInfos;
+    setUserInfos: (infos: UserInfos) => void;
+    userInfos?: UserInfos;
 }
 
 interface AuthProviderProps {
@@ -39,48 +39,27 @@ export interface UserInfos {
 
 export const AuthContext = createContext<AuthContextProps>({
     isAuthenticated: false,
-    login: (_: string) => {
+    userInfos: {},
+    setUserInfos: (infos: UserInfos) => {
     },
     logout: () => {
     },
-    userInfos: {}
 } as AuthContextProps);
 
 const AuthProvider: FunctionComponent<AuthProviderProps> = ({children}) => {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
-    const [userInfos, setUserInfos] = useState<UserInfos | any>();
-
-
-    const getUserInfos = async (userKey: string): Promise<UserInfos> => {
-        const config = {
-            headers: {"x-apisports-key": `${userKey}`}
-        }
-        return api.get("status", config).then(res => {
-            return res.data
-        }).catch(err => {
-            return err
-        })
-    }
-
-    useEffect(() => {
-        const userKey: string | null = localStorage.getItem(USER_KEY)
-        if (userKey) {
-            getUserInfos(userKey).then(res => setUserInfos(res)).catch((err) => setUserInfos(err))
-        }
-    }, []);
-
-    const login = (key: string) => {
-        setIsAuthenticated(true);
+    const [userInfos, setUserInfos] = useState<UserInfos>();
+    const login = (key: string, authenticated: boolean): (UserInfos | any) => {
         localStorage.setItem(USER_KEY, key)
+        setIsAuthenticated(authenticated)
     };
-
     const logout = () => {
         localStorage.setItem(USER_KEY, "")
         setIsAuthenticated(false);
     };
 
     return (
-        <AuthContext.Provider value={{isAuthenticated, login, logout, userInfos}}>
+        <AuthContext.Provider value={{isAuthenticated, login, logout, setUserInfos, userInfos}}>
             {children}
         </AuthContext.Provider>
     );

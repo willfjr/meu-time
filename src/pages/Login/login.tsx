@@ -4,28 +4,58 @@ import logo from '../../assets/logo-meu-time.png'
 import apiSportsLogo from '../../assets/api-sports-small-logo.png'
 import React, {useState} from "react";
 import "../../styles/login-page.css"
-import {Button, Form, Input} from "reactstrap";
+import {Button, Form, Input, Modal, ModalBody, ModalHeader} from "reactstrap";
 import {API_SPORTS_URL} from "../../constants/urls";
 import useAuth from "../../hooks/useAuth";
 import {useNavigate} from "react-router-dom";
+import {UserInfos} from "../../services/auth";
+import api from "../../services/api";
+import {throws} from "assert";
 
 const LoginPage = () => {
-    const {login} = useAuth();
+    const {login, setUserInfos} = useAuth();
     const navigate = useNavigate();
     const [inputValueKey, setInputValueKey] = useState<string>("");
+    const [isModalOpen, setIsModalOpen] = useState<boolean>();
 
     const handleInputKey = (event: any) => {
         setInputValueKey(event.target.value)
     }
-    const handleLogin = () => {
-        const res = login(inputValueKey);
-        if (res) {
-            console.log(res)
-            return;
+    const handleLogin = (e: any) => {
+        e.preventDefault()
+
+        if (!inputValueKey) {
+            setIsModalOpen(true);
         }
 
-        navigate("/home");
+        if (inputValueKey) {
+            const config = {
+                headers: {"x-apisports-key": `${inputValueKey}`}
+            }
+            api.get("status", config).then(res => {
+                let response: UserInfos = res.data
+
+                if (response?.results === 0) {
+                    login(inputValueKey, false)
+                    setUserInfos(response)
+                    setIsModalOpen(true)
+                } else if (response?.results === 1) {
+                    login(inputValueKey, true)
+                    setUserInfos(response)
+                    navigate("/home")
+                    setIsModalOpen(false)
+                } else {
+                    setIsModalOpen(true)
+                }
+            }).catch(err => {
+                throws(err)
+            })
+        }
     };
+
+    const toggle = () => {
+        setIsModalOpen(!isModalOpen)
+    }
 
     return (
         <div className={"Auth-form-container"}>
@@ -45,7 +75,7 @@ const LoginPage = () => {
                         />
                     </div>
                     <div className="d-grid gap-2 mt-3">
-                        <Button type={"submit"} color={"warning"} className={"Btn-login"}>
+                        <Button type={"submit"} color={"warning"} className={"Btn-login"} onClick={handleLogin}>
                             Entrar
                         </Button>
                     </div>
@@ -55,6 +85,20 @@ const LoginPage = () => {
                     </p>
                 </div>
             </Form>
+            <Modal isOpen={isModalOpen} toggle={toggle} modalTransition={{timeout: 100}}>
+                <ModalHeader>
+                    <span>
+                    Algo deu errado! =(
+                    </span>
+                </ModalHeader>
+                <ModalBody>
+                    <span>
+                        Tenha certeza de inserir a key que se encontra na sua dashboard da API SPORTS.
+                        Você pode se cadastrar <a
+                        href={API_SPORTS_URL.CADASTRO}>aqui</a> caso não tenha feito seu cadastro.
+                    </span>
+                </ModalBody>
+            </Modal>
         </div>
     )
 }

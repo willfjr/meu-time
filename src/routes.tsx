@@ -13,8 +13,6 @@ const Signup = () => {
 }
 
 const Home = () => {
-    const {userInfos} = useAuth();
-    console.log(userInfos)
     return null;
 }
 
@@ -22,10 +20,9 @@ const RoutesApp = () => {
     return (
         <BrowserRouter>
             <Routes>
-                <Route path="/home" element={<Private HomeComponent={Home}/>}/>
                 <Route path="/" element={<LoginPage/>}/>
                 <Route path="/signup" element={<Signup/>}/>
-                <Route path="*" element={<LoginPage/>}/>
+                <Route path="/home" element={<Private HomeComponent={Home}/>}/>
             </Routes>
         </BrowserRouter>
     );
