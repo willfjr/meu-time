@@ -1,9 +1,12 @@
 import React from 'react';
+import AuthProvider from "./services/auth";
+import RoutesApp from "./routes";
 
 function App() {
     return (
-        <div>
-        </div>
+        <AuthProvider>
+            <RoutesApp/>
+        </AuthProvider>
     );
 }
 
