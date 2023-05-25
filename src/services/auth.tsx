@@ -47,7 +47,7 @@ export const AuthContext = createContext<AuthContextProps>({
 } as AuthContextProps);
 
 const AuthProvider: FunctionComponent<AuthProviderProps> = ({children}) => {
-    const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem(USER_KEY));
     const [userInfos, setUserInfos] = useState<UserInfos>();
     const login = (key: string, authenticated: boolean): (UserInfos | any) => {
         localStorage.setItem(USER_KEY, key)

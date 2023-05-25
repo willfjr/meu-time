@@ -37,7 +37,6 @@ const LoginPage = () => {
 
                 if (response?.results === 0) {
                     login(inputValueKey, false)
-                    setUserInfos(response)
                     setIsModalOpen(true)
                 } else if (response?.results === 1) {
                     login(inputValueKey, true)
