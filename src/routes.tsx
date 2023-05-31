@@ -2,12 +2,13 @@ import {BrowserRouter, Route, Routes} from "react-router-dom";
 import useAuth from "./hooks/useAuth";
 import LoginPage from "./pages/Login/login";
 import HomePage from "./pages/Home/home-page";
+import TeamDetails from "./pages/TeamDetails/team-details";
 
-const Private = ({HomeComponent}: any) => {
+const Private = ({Component}: any) => {
     const {isAuthenticated} = useAuth();
 
     return isAuthenticated ? (
-        <HomeComponent/>
+        <Component/>
     ) : <LoginPage/>;
 };
 
@@ -21,7 +22,8 @@ const RoutesApp = () => {
             <Routes>
                 <Route path="/" element={<LoginPage/>}/>
                 <Route path="/signup" element={<Signup/>}/>
-                <Route path="/home" element={<Private HomeComponent={HomePage}/>}/>
+                <Route path="/home" element={<Private Component={HomePage}/>}/>
+                <Route path="/team-details" element={<Private Component={TeamDetails}/>}/>
             </Routes>
         </BrowserRouter>
     );
