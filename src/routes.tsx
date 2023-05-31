@@ -1,21 +1,17 @@
 import {BrowserRouter, Route, Routes} from "react-router-dom";
 import useAuth from "./hooks/useAuth";
+import LoginPage from "./pages/Login/login";
+import HomePage from "./pages/Home/home-page";
 
 const Private = ({HomeComponent}: any) => {
     const {isAuthenticated} = useAuth();
 
-    return isAuthenticated ? <HomeComponent/> : <Signin/>;
+    return isAuthenticated ? (
+        <HomeComponent/>
+    ) : <LoginPage/>;
 };
 
-const Signin = () => {
-    return null;
-}
-
 const Signup = () => {
-    return null;
-}
-
-const Home = () => {
     return null;
 }
 
@@ -23,10 +19,9 @@ const RoutesApp = () => {
     return (
         <BrowserRouter>
             <Routes>
-                <Route path="/home" element={<Private HomeComponent={Home}/>}/>
-                <Route path="/" element={<Signin/>}/>
+                <Route path="/" element={<LoginPage/>}/>
                 <Route path="/signup" element={<Signup/>}/>
-                <Route path="*" element={<Signin/>}/>
+                <Route path="/home" element={<Private HomeComponent={HomePage}/>}/>
             </Routes>
         </BrowserRouter>
     );

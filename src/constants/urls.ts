@@ -9,3 +9,7 @@ export const API_URL = {
     TEAMS_STATISTICS: "/teams/statistics",
     TEAMS_COUTRIES: "/teams/countries",
 }
+
+export const API_SPORTS_URL = {
+    CADASTRO: "https://dashboard.api-football.com/register"
+}
